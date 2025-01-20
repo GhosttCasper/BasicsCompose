@@ -3,7 +3,6 @@ package com.example.basicscodelab
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +27,6 @@ import com.example.basicscodelab.ui.theme.BasicsCodelabTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             BasicsCodelabTheme {
                 MyApp(modifier = Modifier.fillMaxSize())
@@ -44,7 +42,7 @@ fun MyApp(modifier: Modifier = Modifier) {
 
     Surface(modifier) {
         if (shouldShowOnboarding) {
-            OnboardingScreen(/* TODO */)
+            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
         } else {
             Greetings()
         }
@@ -52,9 +50,10 @@ fun MyApp(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun OnboardingScreen(modifier: Modifier = Modifier) {
-    // TODO: This state should be hoisted
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+fun OnboardingScreen(
+    onContinueClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -64,18 +63,10 @@ fun OnboardingScreen(modifier: Modifier = Modifier) {
         Text("Welcome to the Basics Codelab!")
         Button(
             modifier = Modifier.padding(vertical = 24.dp),
-            onClick = { shouldShowOnboarding = false }
+            onClick = onContinueClicked
         ) {
             Text("Continue")
         }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-fun OnboardingPreview() {
-    BasicsCodelabTheme {
-        OnboardingScreen()
     }
 }
 
@@ -91,18 +82,21 @@ private fun Greetings(
     }
 }
 
-@Preview(showBackground = true, widthDp = 320)
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
 @Composable
-fun GreetingsPreview() {
+fun OnboardingPreview() {
     BasicsCodelabTheme {
-        Greetings()
+        OnboardingScreen(onContinueClicked = {})
     }
 }
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+
+    var expanded by remember { mutableStateOf(false) }
+
+    val extraPadding = if (expanded) 48.dp else 0.dp
+
     Surface(
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)
@@ -113,13 +107,13 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                     .weight(1f)
                     .padding(bottom = extraPadding)
             ) {
-                Text(text = "Hello ")
+                Text(text = "Hello, ")
                 Text(text = name)
             }
             ElevatedButton(
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded.value) "Show less" else "Show more")
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }
@@ -129,7 +123,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     BasicsCodelabTheme {
-        MyApp()
+        Greetings()
     }
 }
 
